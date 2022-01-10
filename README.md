@@ -1,11 +1,13 @@
-# BDD
+# Testing a class library using .NET 6
 
-- [Installation dotnet](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-- [Installation dotnet sdk](https://dotnet.microsoft.com/en-us/download/dotnet/sdk-for-vs-code)
-- install recommanded extensions and restart vscode
+This project contains a working example of how to test a class library using SpecFlow and .NET 6.
 
+## Projects
 
-To recreate template from blank folder :
-- Add Specflow `dotnet add package SpecFlow --version 3.9.40`
-- `dotnet new --install SpecFlow.Templates.DotNet::3.9.40`
-- `dotnet new specflowproject`
+### SpecFlowCalculator
+
+A class library containing one class, [Calculator.cs](./SpecFlowCalculator/Calculator.cs), which is the subject under test.
+
+### SpecFlowCalculator.Specs
+
+A test project using the NUnit framework containing 5 simple example tests in [Calculator.feature](./SpecFlowCalculator.Specs/Features/Calculator.feature) and step definitions defined in [CalculatorStepDefinitions.cs](./SpecFlowCalculator.Specs/Steps/CalculatorStepDefinitions.cs)

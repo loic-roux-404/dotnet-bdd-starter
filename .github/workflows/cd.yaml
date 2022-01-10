@@ -1,0 +1,19 @@
+name: test
+
+on: [pull_request]
+
+jobs:
+  ci:
+    name: Build and test on ${{ matrix.os }} with go ${{ matrix.dotnet }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        dotnet: ['6.0.x']
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+        include-prerelease: true
+    - run: dotnet build <my project>

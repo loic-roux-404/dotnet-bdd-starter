@@ -1,6 +1,6 @@
 {
     "cucumberautocomplete.steps": [
-        "Steps/**/*.cs",
+        "/*.Specs/**/*.cs",
     ],
     "cucumberautocomplete.strictGherkinCompletion": true
 }
