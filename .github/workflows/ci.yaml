@@ -1,10 +1,19 @@
-name: test
+name: ci
 
-on: [pull_request]
+on:
+    push:
+        branches:
+            - master
+            - beta
+            - next
+            - next-major
+            - alpha
+            - '*.*.*'
 
 jobs:
   ci:
     env:
+      PROJECT: SpecFlowCalculator
       SPECS_PROJECT: SpecFlowCalculator.Specs
     name: Build and test on ${{ matrix.os }} with go ${{ matrix.dotnet }}
     runs-on: ${{ matrix.os }}
@@ -18,4 +27,6 @@ jobs:
       with:
         dotnet-version: '6.0.x'
         include-prerelease: true
+    - run: dotnet build $PROJECT
+    - run: dotnet build $SPECS_PROJECT
     - run: dotnet test $SPECS_PROJECT
