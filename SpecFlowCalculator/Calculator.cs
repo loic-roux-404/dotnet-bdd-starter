@@ -18,14 +18,9 @@
 
         public int Divide()
         {
-            if (FirstNumber == 0 || SecondNumber == 0)
-            {
-                return 0;
-            }
-            else
-            {
-                return FirstNumber / SecondNumber;
-            }
+            if (FirstNumber == 0 || SecondNumber == 0) return 0;
+
+            return FirstNumber / SecondNumber;
         }
 
         public int Multiply()
