@@ -32,3 +32,8 @@ Scenario: Multiply two numbers
 	And the second number is 50
 	When the two numbers are multiplied
 	Then the result should be 250
+
+
+Scenario: title
+    Given
+    
