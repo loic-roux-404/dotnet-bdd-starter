@@ -1,23 +1,27 @@
 ﻿using FluentAssertions;
 using TechTalk.SpecFlow;
 
-namespace SpecFlowCalculator.Specs.Steps
+using System;
+using System.Collections.Generic;
+
+namespace SpecFlowBallot.Specs.Steps
 {
     [Binding]
-    public sealed class CalculatorStepDefinitions
+    public sealed class BallotStepDefinitions
     {
+        private List<Participants> _mockClients;
         private readonly Calculator _calculator;
         private int _result;
 
-        public CalculatorStepDefinitions(Calculator calculator)
+        public BallotStepDefinitions(Calculator calculator)
         {
             _calculator = calculator;
         }
 
-        [Given("the first number is (.*)")]
-        public void GivenTheFirstNumberIs(int number)
+        [Given("the following participants:")]
+        public void GivenTheFollowingParticipants(List<Participants> participants)
         {
-            _calculator.FirstNumber = number;
+           participants = _mockClients;
         }
 
         [Given("the second number is (.*)")]

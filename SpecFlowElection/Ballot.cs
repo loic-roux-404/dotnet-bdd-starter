@@ -1,14 +1,21 @@
-﻿namespace SpecFlowCalculator
+﻿using System;
+using System.Collections.Generic;
+
+namespace SpecFlowBallot
 {
-    public class Calculator
+    public class Ballot
     {
-        public int FirstNumber { get; set; }
+        public string Reason { get; set; }
 
         public int SecondNumber { get; set; }
 
-        public int Add()
+        public bool Done = false;
+
+        private List<Participant> participants = new List<Participant>();
+
+        public void Close()
         {
-            return FirstNumber + SecondNumber;
+            Done = true;
         }
 
         public int Subtract()
