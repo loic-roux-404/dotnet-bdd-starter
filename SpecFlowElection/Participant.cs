@@ -1,6 +1,6 @@
-namespace SpecFlowBallot {
+namespace SpecFlowElection {
 
-    class Participant {
-        public string name { get; set; }
+    public class Participant {
+        public string Name { get; set; }
     }
 }

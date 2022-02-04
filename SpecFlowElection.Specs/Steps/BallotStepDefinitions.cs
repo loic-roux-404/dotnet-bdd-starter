@@ -1,63 +1,98 @@
-﻿using FluentAssertions;
-using TechTalk.SpecFlow;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace SpecFlowBallot.Specs.Steps
+using FluentAssertions;
+using TechTalk.SpecFlow;
+namespace SpecFlowElection.Specs.Steps
 {
     [Binding]
     public sealed class BallotStepDefinitions
     {
-        private List<Participants> _mockClients;
-        private readonly Calculator _calculator;
-        private int _result;
+        private readonly Ballot _ballot;
 
-        public BallotStepDefinitions(Calculator calculator)
+        public BallotStepDefinitions(Ballot ballot)
         {
-            _calculator = calculator;
+            _ballot = ballot;
         }
 
-        [Given("the following participants:")]
-        public void GivenTheFollowingParticipants(List<Participants> participants)
+        [Given(@"following candidates")]
+        public void GivenFollowingCandidates(Table table)
         {
-           participants = _mockClients;
+            List<string> ps = new List<string>();
+            // TODO create participant list from table
+            // Table participants = table;
+            foreach (var row in table.Rows) {
+                ps.Add(row[0]);
+            }
+            Console.WriteLine("aaaaa", _ballot);
+            _ballot.Open(ps);
         }
 
-        [Given("the second number is (.*)")]
-        public void GivenTheSecondNumberIs(int number)
+        [When(@"ballot close")]
+        public void GivenBallotClose()
         {
-            _calculator.SecondNumber = number;
+            _ballot.Close();
         }
 
-        [When("the two numbers are added")]
-        public void WhenTheTwoNumbersAreAdded()
+        [Given("voter (.*) choose (.*)")]
+        public void WhenVoterChoose(string voter, string candidate)
         {
-            _result = _calculator.Add();
+            _ballot.Vote(voter, candidate);
         }
 
-        [When("the two numbers are subtracted")]
-        public void WhenTheTwoNumbersAreSubtracted()
+        // TODO replace previous function multiple call
+        // Not prio
+        [Given("voters mapping is")]
+        public void WhenVotersVoteMapping(Table table)
         {
-            _result = _calculator.Subtract();
+            var dictionary = new Dictionary<string, string>();
+
+            foreach (var row in table.Rows)
+            {
+                dictionary.Add(row[0], row[1]);
+            }
         }
 
-        [When("the two numbers are divided")]
-        public void WhenTheTwoNumbersAreDivided()
+
+        [Then("result details matching (.*)")]
+        public void WhenResultDetailsMatching(string details)
         {
-            _result = _calculator.Divide();
+            // TODO create detail field in result and add string to this during vote process
+            // _result = //
         }
 
-        [When("the two numbers are multiplied")]
-        public void WhenTheTwoNumbersAreMultiplied()
+        [Then("result winner name is (.*)")]
+        public void ThenResultWinnerNameIs(string expected)
         {
-            _result = _calculator.Multiply();
+            _ballot.result.Should().NotBeNull();
+
+            string _name = _ballot.result.winner.Name;
+            _name.Should().Be(expected);
         }
 
-        [Then("the result should be (.*)")]
-        public void ThenTheResultShouldBe(int result)
+        [Then("result round is (.*)")]
+        public void ThenResultRoundIs(int expected)
         {
-            _result.Should().Be(result);
+            _ballot.result.Should().NotBeNull();
+
+            int _round = _ballot.result.GetRound();
+            _round.Should().Be(expected);
+        }
+
+        [Then("result message matching (.*)")]
+        public void WhenResultMatchingMessage(string messageExpected)
+        {
+            _ballot.result.Should().NotBeNull();
+
+            string _result = _ballot.result.message;
+            _result.Should().Be(messageExpected);
+        }
+
+        [Then(@"check remains only two candidates")]
+        public void ThenCheckRemainsOnlyTwoCandidates(Table table)
+        {
+            // TODO search if expected candidates in table are in list and table rows are equals (eliminated loosers)
+            // Use Fluent assertion to validate
         }
     }
 }

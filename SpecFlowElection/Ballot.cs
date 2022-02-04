@@ -1,38 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SpecFlowBallot
+namespace SpecFlowElection
 {
     public class Ballot
     {
-        public string Reason { get; set; }
+        public Ballot() {}
 
-        public int SecondNumber { get; set; }
+        public Result result;
 
-        public bool Done = false;
+        public bool IsDone() {
+            return result != null || result.winner != null;
+        }
 
         private List<Participant> participants = new List<Participant>();
+        private Dictionary<Participant, List<string>> votes = new Dictionary<Participant, List<string>>();
+
+        public void Open(List<string> candidatesNameList) {
+            candidatesNameList.ForEach(x => {
+                Participant p = new Participant();
+                p.Name = x;
+                participants.Add(p);
+            });
+        }
 
         public void Close()
         {
-            Done = true;
+            // TODO here process votes from dict
+            Result result = new Result();
+            result.message = "Oui";
         }
 
-        public int Subtract()
-        {
-            return FirstNumber - SecondNumber;
-        }
+        public void Vote(string voter, string participantName) {
+            Participant p = participants.Find(x => x.Name == participantName);
 
-        public int Divide()
-        {
-            if (FirstNumber == 0 || SecondNumber == 0) return 0;
+            if (p == null) {
+                return;
+            }
 
-            return FirstNumber / SecondNumber;
-        }
+            List<string> CurrentList = votes.GetValueOrDefault(p);
 
-        public int Multiply()
-        {
-            return FirstNumber * SecondNumber;
+            if (CurrentList == null) {
+                CurrentList = new List<string>();
+            }
+
+            CurrentList.Add(participantName);
+            votes.Add(p, CurrentList);
         }
     }
 }
