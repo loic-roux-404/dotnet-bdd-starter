@@ -1,8 +1,11 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 
 using FluentAssertions;
 using TechTalk.SpecFlow;
+using TechTalk.SpecFlow.Assist;
+
 namespace SpecFlowElection.Specs.Steps
 {
     [Binding]
@@ -21,14 +24,14 @@ namespace SpecFlowElection.Specs.Steps
             List<string> ps = new List<string>();
             // TODO create participant list from table
             // Table participants = table;
-            foreach (var row in table.Rows) {
-                ps.Add(row[0]);
+            foreach (var h in table.Header) {
+                ps.Add(h);
             }
-            Console.WriteLine("aaaaa", _ballot);
+
             _ballot.Open(ps);
         }
 
-        [When(@"ballot close")]
+        [When("ballot close")]
         public void GivenBallotClose()
         {
             _ballot.Close();
@@ -37,22 +40,30 @@ namespace SpecFlowElection.Specs.Steps
         [Given("voter (.*) choose (.*)")]
         public void WhenVoterChoose(string voter, string candidate)
         {
-            _ballot.Vote(voter, candidate);
+            _ballot.Vote(new User(voter), candidate);
         }
 
         // TODO replace previous function multiple call
         // Not prio
-        [Given("voters mapping is")]
-        public void WhenVotersVoteMapping(Table table)
+        // [Given("voters mapping is")]
+        // public void WhenVotersVoteMapping(Table table)
+        // {
+        //     var dictionary = new Dictionary<string, string>();
+
+        //     foreach (var row in table.Rows)
+        //     {
+        //         dictionary.Add(row[0], row[1]);
+        //     }
+        // }
+
+        [Then("i have (.*) in candidates")]
+        public void ThenIHaveCandidate(string candidateName)
         {
-            var dictionary = new Dictionary<string, string>();
-
-            foreach (var row in table.Rows)
-            {
-                dictionary.Add(row[0], row[1]);
-            }
+            _ballot.candidates.Should().ContainSingle(
+                c => c.Name == candidateName,
+                candidateName + " not in candidate names"
+            );
         }
-
 
         [Then("result details matching (.*)")]
         public void WhenResultDetailsMatching(string details)
@@ -64,7 +75,11 @@ namespace SpecFlowElection.Specs.Steps
         [Then("result winner name is (.*)")]
         public void ThenResultWinnerNameIs(string expected)
         {
-            _ballot.result.Should().NotBeNull();
+            if (expected == "null") {
+                _ballot.result.winner.Should().BeNull();
+            } else {
+                _ballot.result.winner.Should().NotBeNull();
+            }
 
             string _name = _ballot.result.winner.Name;
             _name.Should().Be(expected);
@@ -91,8 +106,10 @@ namespace SpecFlowElection.Specs.Steps
         [Then(@"check remains only two candidates")]
         public void ThenCheckRemainsOnlyTwoCandidates(Table table)
         {
-            // TODO search if expected candidates in table are in list and table rows are equals (eliminated loosers)
-            // Use Fluent assertion to validate
+            var cs = table.CreateSet<Candidate>();
+            var ballotCs = _ballot.candidates;
+
+            table.CompareToSet<Candidate>(ballotCs);
         }
     }
 }
