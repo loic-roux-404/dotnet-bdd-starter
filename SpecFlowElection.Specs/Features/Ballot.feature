@@ -123,17 +123,16 @@
         When ballot close
         Then result winner name is jeanne
 
-
-# @ballot_special
-# @ballot_error
-# Scenario: 3 candidates equals
-#     Given classic test ballot
-#     And voter toto choose dupont
-#     And voter kiki choose dupont
-#     And voter tutu choose jeanne
-#     And voter titi choose jeanne
-#     And voter tata choose thierry
-#     And voter tete choose thierry
-#     When ballot close
-#     Then result winner name is null
-#     Then result message matching Can't continue with 3 equal candidates, restart vote
+    @ballot_special
+    @ballot_error
+    Scenario: Equals candidate in first round
+        Given classic test ballot
+        And voter kiki choose dupont
+        And voter toto choose dupont
+        And voter tutu choose jeanne
+        And voter titi choose jeanne
+        And voter tata choose thierry
+        And voter tete choose thierry
+        Then close and exception message is Can't continue with equal candidates, restart vote
+        And result winner name is null
+        And result round is 1

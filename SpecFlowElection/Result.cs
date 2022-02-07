@@ -18,15 +18,13 @@ namespace SpecFlowElection
 
     public class Result
     {
-        public const string TooMuchEquals = "Can't continue with 3 equal candidates, restart vote";
+        public const string TooMuchEquals = "Can't continue with equal candidates, restart vote";
         public const string SecondRoundNeeded = "Election need a second round";
 
         public const string MaxRound = "Can't go further round 2 to determine a winner";
         public const string BlankWinner = "blank vote majority, restart vote.";
 
-        const int EqualsForRestart = 3;
-        const int EqualsForSecondRound = 2;
-        const int EqualsNoOne = 1;
+        const int EqualsForRestart = 2;
 
         const double RateForWin = 50.00;
 
@@ -53,16 +51,22 @@ namespace SpecFlowElection
             StringUtils.Debug(Result.FlattenCandidatesInVotes(leaderboard));
             StringUtils.Debug(Result.FlattenUserInVotes(leaderboard));
 
-            var first = leaderboard.FirstOrDefault().Key;
+            var first = leaderboard.FirstOrDefault();
 
-            if (first.ResultRate > RateForWin) {
-                winner = first;
+            if (first.Key.ResultRate > RateForWin) {
+                winner = first.Key;
                 message = "Winner is " + winner.Name;
                 return newCandidates;
             }
 
+            if (
+                Round == 1 &&
+                GetEqualsWith(leaderboard, leaderboard.ElementAt(1).Key, first.Key).Count >= EqualsForRestart) {
+                throw new ErrorResultException(TooMuchEquals);
+            }
+
             // Prepare candidates for next row
-            newCandidates.Add(first);
+            newCandidates.Add(first.Key);
             newCandidates.Add(leaderboard.ElementAt(1).Key);
             message = SecondRoundNeeded;
 
@@ -123,13 +127,19 @@ namespace SpecFlowElection
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        protected List<Candidate> GetEquals(Dictionary<Candidate, List<User>> leaderboard)
+        protected List<Candidate> GetEqualsWith(
+            Dictionary<Candidate, List<User>> leaderboard,
+            Candidate candidate,
+            Candidate exclude
+        )
         {
             var equals = new List<Candidate>();
 
             foreach (var c in leaderboard)
             {
-                if (c.Value.Count == leaderboard.First().Value.Count)
+                if (c.Key == exclude) continue;
+
+                if (c.Key.ResultRate == candidate.ResultRate)
                 {
                     equals.Add(c.Key);
                 }

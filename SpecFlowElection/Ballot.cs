@@ -21,6 +21,7 @@ namespace SpecFlowElection
         public Result result = new Result();
 
         internal Dictionary<Candidate, List<User>> votes = new Dictionary<Candidate, List<User>>();
+
         protected static Candidate BlankUser = new Candidate("", 666);
         public List<Candidate> Candidates = new List<Candidate>();
 
@@ -75,20 +76,10 @@ namespace SpecFlowElection
         }
 
         protected void ProcessBallot() {
-            try {
-                Open(result.NextRound(votes));
-            } catch(ErrorResultException e) {
-                Console.Write(e.Message);
-                return;
-            } catch(RoundException e) {
-                throw e;
-            }
-
-            ResetVotes();
-        }
-
-        protected void ResetVotes() {
+            var toprocessVotes = votes;
+            // Reset votes
             votes = new Dictionary<Candidate, List<User>>();
+            Open(result.NextRound(toprocessVotes));
         }
     }
 }
