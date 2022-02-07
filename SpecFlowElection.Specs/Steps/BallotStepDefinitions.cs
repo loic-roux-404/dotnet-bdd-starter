@@ -1,63 +1,138 @@
-﻿using FluentAssertions;
-using TechTalk.SpecFlow;
-
+﻿
 using System;
 using System.Collections.Generic;
 
-namespace SpecFlowBallot.Specs.Steps
+using FluentAssertions;
+using TechTalk.SpecFlow;
+using TechTalk.SpecFlow.Assist;
+
+namespace SpecFlowElection.Specs.Steps
 {
     [Binding]
     public sealed class BallotStepDefinitions
     {
-        private List<Participants> _mockClients;
-        private readonly Calculator _calculator;
-        private int _result;
+        private readonly Ballot _ballot;
 
-        public BallotStepDefinitions(Calculator calculator)
+        private List<Candidate> _candidates;
+
+        private List<User> _users;
+
+        public BallotStepDefinitions(Ballot ballot)
         {
-            _calculator = calculator;
+            _ballot = ballot;
+            _users = new List<User>();
+            _candidates = new List<Candidate>();
         }
 
-        [Given("the following participants:")]
-        public void GivenTheFollowingParticipants(List<Participants> participants)
+        [Given(@"following candidates")]
+        public void GivenFollowingCandidates(Table table)
         {
-           participants = _mockClients;
+            foreach (var h in table.Header) {
+                _candidates.Add(new Candidate(h, _candidates.Count + _users.Count + 1));
+            }
+        }
+        [Given(@"following voters")]
+        public void GivenFollowingUsers(Table table)
+        {
+            foreach (var h in table.Header) {
+                _users.Add(new User(h, _candidates.Count + _users.Count + 1));
+            }
         }
 
-        [Given("the second number is (.*)")]
-        public void GivenTheSecondNumberIs(int number)
-        {
-            _calculator.SecondNumber = number;
+        [Given("classic test ballot")]
+        public void GivenClassicTestBallot() {
+            GivenFollowingCandidates(new Table("dupont","jeanne", "thierry", "fab"));
+            GivenFollowingUsers(new Table("toto", "titi", "tata", "tutu", "tete", "kiki"));
+            _ballot.Open(_candidates);
         }
 
-        [When("the two numbers are added")]
-        public void WhenTheTwoNumbersAreAdded()
+        [When("ballot open")]
+        public void GivenBallotOpen()
         {
-            _result = _calculator.Add();
+            _ballot.Open(_candidates);
         }
 
-        [When("the two numbers are subtracted")]
-        public void WhenTheTwoNumbersAreSubtracted()
+        [When("ballot close")]
+        public void GivenBallotClose()
         {
-            _result = _calculator.Subtract();
+            _ballot.Close();
         }
 
-        [When("the two numbers are divided")]
-        public void WhenTheTwoNumbersAreDivided()
+        [Given("voter (.*) choose (.*)")]
+        public void WhenVoterChoose(string voter, string candidate)
         {
-            _result = _calculator.Divide();
+            var voterFound = _users.Find(v => v.Name == voter);
+
+            if (candidate == "<null>") {
+                candidate = null;
+            }
+
+            _ballot.Vote(voterFound, candidate);
         }
 
-        [When("the two numbers are multiplied")]
-        public void WhenTheTwoNumbersAreMultiplied()
+        [Then("i have (.*) in candidates")]
+        public void ThenIHaveCandidate(string candidateName)
         {
-            _result = _calculator.Multiply();
+            _ballot.Candidates.Should().ContainSingle(
+                c => c.Name == candidateName,
+                candidateName + " not in candidate names"
+            );
         }
 
-        [Then("the result should be (.*)")]
-        public void ThenTheResultShouldBe(int result)
+        [Then("result details matching (.*)")]
+        public void WhenResultDetailsMatching(string details)
         {
-            _result.Should().Be(result);
+            _ballot.result.details.Should().Be(details);
+        }
+
+        [Then("result winner name is (.*)")]
+        public void ThenResultWinnerNameIs(string expected)
+        {
+            if (expected == "null") {
+                _ballot.result.winner.Should().BeNull();
+                return;
+            }
+
+            var winner = _ballot.result.winner;
+
+            winner.Should().NotBeNull(expected);
+            winner.Name.Should().Be(expected);
+        }
+
+        [Then("result round is (.*)")]
+        public void ThenResultRoundIs(int expected)
+        {
+            _ballot.result.Should().NotBeNull();
+
+            int _round = _ballot.result.GetRound();
+            _round.Should().Be(expected);
+        }
+
+        [Then("result message matching (.*)")]
+        public void WhenResultMatchingMessage(string messageExpected)
+        {
+            _ballot.result.Should().NotBeNull();
+
+            string _result = _ballot.result.message;
+            _result.Should().Be(messageExpected);
+        }
+
+        [Then("close and exception message is (.*)")]
+        public void WhenCloseAndExceptionMessageIs(string messageExpected)
+        {
+            _ballot.Invoking(y => y.Close())
+                .Should().Throw<System.Exception>()
+                .WithMessage(messageExpected);
+        }
+
+        [Then(@"check remains only two candidates")]
+        public void ThenCheckRemainsOnlyTwoCandidates(Table table)
+        {
+            var cs = table.CreateSet<Candidate>();
+            var ballotCs = _ballot.Candidates;
+            StringUtils.Debug(ballotCs);
+
+            table.CompareToSet<Candidate>(ballotCs);
         }
     }
 }

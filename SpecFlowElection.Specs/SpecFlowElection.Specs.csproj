@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\SpecFlowCalculator\SpecFlowCalculator.csproj" />
+	  <ProjectReference Include="..\SpecFlowElection\SpecFlowElection.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,38 +1,94 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SpecFlowBallot
+namespace SpecFlowElection
 {
+    [System.Serializable]
+    public class NotEnoughUserException : System.Exception
+    {
+        public NotEnoughUserException() { }
+        public NotEnoughUserException(string message) : base(message) { }
+    }
     public class Ballot
     {
-        public string Reason { get; set; }
+        protected const int MinCandidates = 3;
+        public const string NotEnoughCandidates = "minimum 2 candidates required";
+        protected const int MinVoters = 1;
+        public const string NotEnoughVoters = "Not enough voters";
+        public Ballot() {}
 
-        public int SecondNumber { get; set; }
 
-        public bool Done = false;
+        public Result result = new Result();
 
-        private List<Participant> participants = new List<Participant>();
+        internal Dictionary<Candidate, List<User>> votes = new Dictionary<Candidate, List<User>>();
+        protected static Candidate BlankUser = new Candidate("", 666);
+        public List<Candidate> Candidates = new List<Candidate>();
+
+        public void Open(List<Candidate> candidates) {
+            Candidates = candidates;
+
+            foreach (var c in Candidates) {
+                c.ResultRate = 0.00;
+            }
+
+            Candidates.Add(BlankUser);
+        }
 
         public void Close()
         {
-            Done = true;
+            if (Candidates.Count < MinCandidates) {
+                throw new NotEnoughUserException(NotEnoughCandidates);
+            }
+
+            if (Result.FlattenUserInVotes(votes).Count <= MinVoters) {
+                throw new NotEnoughUserException(NotEnoughVoters);
+            }
+
+            ProcessBallot();
         }
 
-        public int Subtract()
-        {
-            return FirstNumber - SecondNumber;
+        public void Vote(User voter, string candidateName) {
+            Candidate p = Candidates.Find(x => x.Name == candidateName);
+
+            if (candidateName == null || candidateName == "") {
+                p = BlankUser;
+            }
+
+            if (p == null) {
+                Console.Write(candidateName + " doesn't exist");
+                return;
+            }
+
+            List<User> CurrentList = votes.GetValueOrDefault(p);
+
+            if (CurrentList == null) {
+                CurrentList = new List<User>();
+                votes.Add(p, CurrentList);
+            }
+
+            if (Result.FlattenUserInVotes(votes).Contains(voter)) {
+                Console.Write(voter + " already voted");
+                return;
+            }
+
+            CurrentList.Add(voter);
         }
 
-        public int Divide()
-        {
-            if (FirstNumber == 0 || SecondNumber == 0) return 0;
+        protected void ProcessBallot() {
+            try {
+                Open(result.NextRound(votes));
+            } catch(ErrorResultException e) {
+                Console.Write(e.Message);
+                return;
+            } catch(RoundException e) {
+                throw e;
+            }
 
-            return FirstNumber / SecondNumber;
+            ResetVotes();
         }
 
-        public int Multiply()
-        {
-            return FirstNumber * SecondNumber;
+        protected void ResetVotes() {
+            votes = new Dictionary<Candidate, List<User>>();
         }
     }
 }
