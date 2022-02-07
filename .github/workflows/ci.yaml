@@ -3,7 +3,7 @@ name: ci
 on:
     push:
         branches:
-            - master
+            - main
             - beta
             - next
             - next-major
@@ -13,9 +13,9 @@ on:
 jobs:
   ci:
     env:
-      PROJECT: SpecFlowCalculator
-      SPECS_PROJECT: SpecFlowCalculator.Specs
-    name: Build and test on ${{ matrix.os }} with go ${{ matrix.dotnet }}
+      PROJECT: SpecFlowElection
+      SPECS_PROJECT: SpecFlowElection.Specs
+    name: Build and test on ${{ matrix.os }} with dotnet ${{ matrix.dotnet }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
