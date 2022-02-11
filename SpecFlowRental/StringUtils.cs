@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System;
 
-namespace SpecFlowElection
+namespace SpecFlowRental
 {
     public class StringUtils {
         public static string ToJson(object obj) {

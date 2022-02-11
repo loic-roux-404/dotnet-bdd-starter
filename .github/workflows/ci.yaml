@@ -13,8 +13,8 @@ on:
 jobs:
   ci:
     env:
-      PROJECT: SpecFlowElection
-      SPECS_PROJECT: SpecFlowElection.Specs
+      PROJECT: SpecFlowRental
+      SPECS_PROJECT: SpecFlowRental.Specs
     name: Build and test on ${{ matrix.os }} with dotnet ${{ matrix.dotnet }}
     runs-on: ${{ matrix.os }}
     strategy:

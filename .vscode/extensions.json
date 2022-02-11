@@ -3,6 +3,8 @@
         "ms-dotnettools.csharp",
         "alexkrechik.cucumberautocomplete",
         "derivitec-ltd.vscode-dotnet-adapter",
-        "stevejpurves.cucumber"
+        "stevejpurves.cucumber",
+        "jorgeserrano.vscode-csharp-snippets",
+        "k--kato.docomment"
     ]
 }

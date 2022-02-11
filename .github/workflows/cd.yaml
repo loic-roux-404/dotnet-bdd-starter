@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   ci:
     env:
-      PROJECT: SpecFlowElection
+      PROJECT: SpecFlowRental
     name: Build and test on ${{ matrix.os }} with go ${{ matrix.dotnet }}
     runs-on: ${{ matrix.os }}
     strategy:
