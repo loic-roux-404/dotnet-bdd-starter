@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace SpecFlowRental
 {
@@ -14,7 +16,6 @@ namespace SpecFlowRental
         public DateTime End { get; set; }
         public double Price { get; set; }
 
-        public bool Closed {get; set;} = false;
     }
 
     public class ValidateUserException : System.Exception
@@ -23,19 +24,26 @@ namespace SpecFlowRental
         public ValidateUserException(string message) : base(message) { }
     }
 
+    public class AccountingException : System.Exception
+    {
+        public AccountingException() { }
+        public AccountingException(string message) : base(message) { }
+    }
+
     public class RentalBook
     {
         const double BasePrice = 30.00;
 
-        const string ExceedKmErrMsg = "Car not gived back on time, need to adjust price with exceeded km, please retry."
+        const string ExceedKmErrMsg = "Car not gived back on time, need to adjust price " +
+            "with exceeded km, please retry.";
         protected List<Rental> l { get; set; }
 
         /// <summary> Catalog with is inside rental state </summary>
-        protected Dictionary<Car, bool> catalog;
+        protected Dictionary<Car, bool> catalog = new Dictionary<Car, bool>();
         /// <summary> User and logged state mapping </summary>
-        protected Dictionary<User, Boolean> users;
+        protected Dictionary<User, Boolean> session = new Dictionary<User, Boolean>();
 
-        public void AddCar(Car car, double price)
+        public void AddCar(Car car)
         {
             catalog.Add(car, false);
         }
@@ -56,7 +64,7 @@ namespace SpecFlowRental
         public void Rent(User u, Car c, DateTime endDate, double estimatedDistance)
         {
             Validate("Is logged or registered", (user, _) => {
-                return users.GetValueOrDefault(user) == true;
+                return session.GetValueOrDefault(user) == true;
             }, u, c);
 
             Validate("More than 18year", (user, _) => {
@@ -107,55 +115,49 @@ namespace SpecFlowRental
                 r.End = DateTime.Now;
             }
 
-            r.Closed = true;
             catalog.Add(r.Car, false);
         }
 
         public void Login(string name, string pass)
         {
-            users.Add(FindUserInSession(name), true);
+            session[FindUserInSession(name, false)] = true;
         }
 
         public void Logout(string name)
         {
-            users.Add(FindUserInSession(name), false);
-        }
-
-        public void Register(int id,
-            string name, string bornDate, int? driverLicense, string pass)
-        {
-            try {
-                var bornD = DateTime.ParseExact(bornDate, "D", new CultureInfo("fr-FR"));
-                var u = new User();
-
-                u.Id = id;
-                u.Name = name;
-                u.BornDate = bornD;
-                u.DriverLicense = driverLicense;
-                u.Pass = pass;
-
-                users.Add(u, false);
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("Unable to parse '{0}'", bornDate);
-            }
-        }
-
-        public void Validate(string reason, Func<User, Car, bool> callback, User u, Car c)
-        {
-            if (!callback(u, c))
-            {
-                throw new ValidateUserException("Failed user validation :" + reason);
-            };
+            session[FindUserInSession(name, true)] = false;
         }
 
         #nullable enable
-        protected User? FindUserInSession(string name) {
-            var ulist = new List<User>(users.Keys);
+        public void Register(int id,
+            string name, DateTime bornDate, int? driverLicense, string pass) {
+            var u = new User();
 
-            if (ulist.Exists(cu => cu.Name == name)) {
-                throw new Exception(name + " not exists in app");
+            u.Id = id;
+            u.Name = name;
+            u.BornDate = bornDate;
+            u.DriverLicense = driverLicense;
+            u.Pass = pass;
+
+            session.Add(u, false);
+        }
+
+        #nullable disable
+        public void Validate(string reason, Func<User, Car, bool> callback, User u, Car c)
+        {
+            if (!callback(u, c))
+                throw new ValidateUserException("Failed user validation : " + reason);
+        }
+
+        #nullable enable
+        protected User? FindUserInSession(string name, bool logged) {
+            var ulist = (from entry in session where entry.Value == logged select entry.Key).ToList();
+            Console.Write("--- " + session.Count);
+
+            ulist.ForEach(e => Console.Write(e.Name));
+
+            if (!ulist.Exists(cu => cu.Name == name)) {
+                throw new AccountingException(name + " accounting failed");
             }
 
             return ulist.Find(cu => cu.Name == name);
