@@ -1,7 +1,7 @@
 ﻿Feature: Rental
 
 # Background: Given following user login and rentals
-    Background: Data
+    Background: Rental Data
         Given following users registered and logged
             | Id | Name             | BornDate   | DriverLicense |Pass|
             | 1  | christian horner | 10/12/1976 | 1             |toto|

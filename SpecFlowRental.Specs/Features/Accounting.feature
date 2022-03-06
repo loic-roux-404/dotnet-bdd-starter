@@ -1,6 +1,6 @@
 Feature: Accounting
 
-    Background: Data
+    Background: Accounting Data
         Given following users not registered
             | Id | Name             | BornDate   | DriverLicense |Pass|
             | 1  | christian horner | 10/12/1976 | 1             |toto|

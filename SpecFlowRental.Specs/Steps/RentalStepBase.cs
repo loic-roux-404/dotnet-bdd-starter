@@ -9,6 +9,14 @@ using TechTalk.SpecFlow.Assist;
 
 namespace SpecFlowRental.Specs.Steps
 {
+    class TestRental {
+        public int userId;
+        public int carId;
+        public double days;
+        public double estimatedDistance;
+    }
+
+    [Binding]
     public class RentalStepBase
     {
         internal readonly RentalBook _rentalBook;
@@ -22,6 +30,12 @@ namespace SpecFlowRental.Specs.Steps
             _rentalBook = book;
             _users = new List<User>();
             _cars = new List<Car>();
+        }
+
+        [Given(@"following users not registered")]
+        public void GivenFollowingUsersNotRegistered(Table table)
+        {
+            _users = table.CreateSet<User>().ToList();
         }
 
         [Given(@"following cars")]

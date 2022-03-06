@@ -18,10 +18,11 @@ namespace SpecFlowRental
 
     }
 
-    public class ValidateUserException : System.Exception
+    public class ValidateUserRentException : System.Exception
     {
-        public ValidateUserException() { }
-        public ValidateUserException(string message) : base(message) { }
+        public const string MsgPrefix = "Failed user validation : ";
+        public ValidateUserRentException() { }
+        public ValidateUserRentException(string message) : base(MsgPrefix + message) { }
     }
 
     public class AccountingException : System.Exception
@@ -105,6 +106,7 @@ namespace SpecFlowRental
             l.Add(r);
             catalog.Add(r.Car, true);
         }
+
         public void GiveBack(Rental r, double? exceedKm = null)
         {
             if (DateTime.Now >= r.End) {
@@ -146,13 +148,12 @@ namespace SpecFlowRental
         public void Validate(string reason, Func<User, Car, bool> callback, User u, Car c)
         {
             if (!callback(u, c))
-                throw new ValidateUserException("Failed user validation : " + reason);
+                throw new ValidateUserRentException(reason);
         }
 
         #nullable enable
         protected User? FindUserInSession(string name, bool logged) {
             var ulist = (from entry in session where entry.Value == logged select entry.Key).ToList();
-            Console.Write("--- " + session.Count);
 
             ulist.ForEach(e => Console.Write(e.Name));
 
