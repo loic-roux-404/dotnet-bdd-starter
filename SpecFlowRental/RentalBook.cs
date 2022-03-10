@@ -35,7 +35,7 @@ namespace SpecFlowRental
     {
         const double BasePrice = 30.00;
 
-        const string ExceedKmErrMsg = "Car not gived back on time, need to adjust price " +
+        public const string ExceedKmErrMsg = "Car not gived back on time, need to adjust price " +
             "with exceeded km, please retry.";
         protected List<Rental> l { get; set; }
 
@@ -107,8 +107,10 @@ namespace SpecFlowRental
             catalog.Add(r.Car, true);
         }
 
-        public void GiveBack(Rental r, double? exceedKm = null)
+        public void GiveBack(User ur, double? exceedKm = null)
         {
+            var r = l.Find(r => r.User.Id == ur.Id);
+
             if (DateTime.Now >= r.End) {
                 if (exceedKm == null) throw new Exception(ExceedKmErrMsg);
 
@@ -143,8 +145,8 @@ namespace SpecFlowRental
 
             session.Add(u, false);
         }
-
         #nullable disable
+
         public void Validate(string reason, Func<User, Car, bool> callback, User u, Car c)
         {
             if (!callback(u, c))

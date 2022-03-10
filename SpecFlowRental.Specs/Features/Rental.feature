@@ -2,7 +2,7 @@
 
 # Background: Given following user login and rentals
     Background: Rental Data
-        Given following users registered and logged
+        Given following users registered
             | Id | Name             | BornDate   | DriverLicense |Pass|
             | 1  | christian horner | 10/12/1976 | 1             |toto|
             | 2  | toto wolf        | 10/12/1976 |               |toto|
@@ -14,3 +14,25 @@
             | 2  | Honda   | Civic  | white | 0.05    | 7  |
             | 3  | Renault | Twingo | grise | 0.02    | 2  |
             | 3  | Ford    | Focus  | white | 0.1     | 12 |
+        And following test rentals
+            | userId | carId | days | estimatedDistance |
+            | 1      | 1     | 10   | 200               |
+            | 2      | 2     | 8   | 110                |
+
+    @giveback
+    @info
+    Scenario: Give back on time
+        When login with user 1
+        Then assert not throw
+        When rent 1 process
+        And give back rental of user 1
+        Then assert not throw
+
+    @giveback
+    @info
+    Scenario: Give back later
+        When login with user 1
+        Then assert not throw
+        When rent 1 process
+        And give back rental of user 1
+        Then throw exceed km exception

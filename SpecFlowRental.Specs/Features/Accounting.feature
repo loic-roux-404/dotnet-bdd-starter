@@ -1,7 +1,7 @@
 Feature: Accounting
 
     Background: Accounting Data
-        Given following users not registered
+        Given non registered users
             | Id | Name             | BornDate   | DriverLicense |Pass|
             | 1  | christian horner | 10/12/1976 | 1             |toto|
             | 2  | toto wolf        | 10/12/1976 |               |toto|
@@ -17,31 +17,37 @@ Feature: Accounting
     @login
     @error
     Scenario: Failed login
-        Then login with user 1 throw with message christian horner accounting failed
+        When login with user 1
+        Then throw accounting exception with message christian horner accounting failed
 
     @login
     @info
     Scenario: Successful login
         When register users
             |christian horner|
-        Then login with user 1 throw with message null
+        When login with user 1
+        Then assert not throw
 
     @logout
     @error
     Scenario: Successful logout
         When register users
             |christian horner|
-        Then login with user 1 throw with message null
-        Then logout with user 1 throw with message null
+        And login with user 1
+        Then assert not throw
+        When logout with user 1
+        Then assert not throw
 
     @logout
     @error
     Scenario: Failed logout of a non logged user
         When register users
             |toto wolf|
-        Then logout with user 2 throw with message toto wolf accounting failed
+        When logout with user 2
+        Then throw accounting exception with message toto wolf accounting failed
 
     @logout
     @error
     Scenario: Failed logout of a non existing user
-        Then logout with user 4 throw with message Lando Norris accounting failed
+        When logout with user 4
+        Then throw accounting exception with message Lando Norris accounting failed

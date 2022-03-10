@@ -26,38 +26,53 @@ Feature: Validation
     @validation
     @error
     Scenario: Is logged or registered
-        Then login with user 1 throw with message null
-        And rent 1 process throw with message Is logged or registered
+        When login with user 1
+        Then assert not throw
+        When rent 1 process
+        Then throw validation exception with message Is logged or registered
 
     @validation
     @error
     Scenario: More than 18year
-        Then login with user 4 throw with message null
-        And rent 2 process throw with message More than 18year
+        When login with user 4
+        Then assert not throw
+        When rent 2 process
+        Then throw validation exception with message More than 18year
 
     @validation
     @error
     Scenario: Driver license
-        Then login with user 1 throw with message null
-        And rent 1 process throw with message Is logged or registered
+        When login with user 1
+        Then assert not throw
+        When rent 1 process
+        Then throw validation exception with message Is logged or registered
 
     @validation
     @error
     Scenario: One car at a time
-        Then login with user 1 throw with message null
-        And test rent 1 process throw with message null
-        And rent 1 process throw with message One car at a time
+        When login with user 2
+        Then assert not throw
+        When rent 3 process
+        Then assert not throw
+        When rent 3 process
+        Then throw validation exception with message One car at a time
 
     @validation
     @info
     Scenario: Car available
-        Then login with user 2 throw with message null
-        Then login with user 4 throw with message null
-        And rent 2 process throw with message null
-        And rent 3 process throw with message "Car available"
+        When login with user 2
+        Then assert not throw
+        When login with user 4
+        Then assert not throw
+        When rent 2 process
+        Then assert not throw
+        When rent 3 process
+        Then throw validation exception with message "Car available"
 
     @validation
     @info
     Scenario: Rent >= 8CV car before 21year
-        Then login with user 5 throw with message null
-        And rent 5 process throw with message Is logged or registered
+        When login with user 5
+        Then assert not throw
+        When rent 5 process
+        Then throw validation exception with message Is logged or registered
